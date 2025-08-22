@@ -1,0 +1,46 @@
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
+const app = express();
+
+app.use(cors());
+
+// استبدل هذا بمفتاحك الحقيقي
+const API_KEY = "wNPXhASSbEGqpKhixPoXIQAovzRNVnxn2LbMM7iLBjxsMc6LZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkluTnBaeTB5TURJeExUQTNMVEV6VkRFNE9qVXhPalE1V2lJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaVlYTmxRWEJwUzJWNUlqb2lkMDVRV0doQlUxTmlSVWR4Y0V0b2FYaFFiMWhKVVVGdmRucFNUbFp1ZUc0eVRHSk5UVGRwVEVKcWVITk5ZelpNSWl3aWIzZHVaWEpKWkNJNklqUTFPVFEwTVRNNE1ETWlMQ0poZFdRaU9pSlNiMkpzYjNoSmJuUmxjbTVoYkNJc0ltbHpjeUk2SWtOc2IzVmtRWFYwYUdWdWRHbGpZWFJwYjI1VFpYSjJhV05sSWl3aVpYaHdJam94TnpVMU9EWXlPRGd6TENKcFlYUWlPakUzTlRVNE5Ua3lPRE1zSW01aVppSTZNVGMxTlRnMU9USTRNMzAuQ2I5aGFVWFBOYmk5cWNGQVVtamgzRW93bkU3T0ZXWjlKSlVSTnVDZDJBLVc2bG5kNmJzUlpnLVFQNjN2aHgyU0VaQ0JLdG03NDl0LVBhQXNQbDFDaXV0ck9DM1hFdTdQRmFZbXVTTmJyOUhsSU53ajZONG52MkxFQUFrLS1OREIwNjZQSzdaaWdYb1Q0dEZWakFuSFdaeWlZb3BaQlFETHF4LUNyNk9YdE11VnBnRWtvQ09QbTBXQV82X1JXOERNRjNhWGpFbEZRSFVEYUw5NVNxQldqd0VVNFowdEdtSGJLS0VKcTlKLWxVU1NJZ3gxOENMbzJxZkZKdFBRdmdwa0ZvTlI1Vm84cjFaVFF3TVN1Vl9BUlM3anB0eGNhOWo1dHhaWHVOVFZrdWNNb1pmeGpveVpMd0ZJaHA3N3A2WVd6d2tIeDFZMnl2RS1RVG1RZ0M3Mi1B";
+
+// استبدل هذا برقم لعبتك
+const UNIVERSE_ID = "5239239849";
+
+app.get('/passes/:userId', async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        const response = await axios.get(
+            `https://apis.roblox.com/cloud/v1/universes/${UNIVERSE_ID}/user-inventory?userId=${userId}&assetTypes=GamePass`,
+            {
+                headers: {
+                    Authorization: `Bearer ${API_KEY}`
+                }
+            }
+        );
+
+        const passes = response.data.data.map(item => {
+            const id = item.asset.id.split("/")[1];
+            return {
+                id: parseInt(id),
+                name: item.asset.name || "Game Pass",
+                price: item.asset.priceInRobux || 0
+            };
+        });
+
+        res.json(passes);
+    } catch (error) {
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Failed to fetch passes" });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
